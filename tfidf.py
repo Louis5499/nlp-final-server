@@ -5,6 +5,13 @@ import requests
 import jieba.posseg as pseg
 from fractions import Fraction
 from collections import defaultdict, Counter
+from ckiptagger import data_utils, construct_dictionary, WS, POS, NER
+
+# ckip-Tagger installation
+# Put data in Backend first~
+ws = WS("./data")
+pos = POS("./data")
+ner = NER("./data")
 
 os.chdir(os.getcwd())
 
@@ -31,6 +38,7 @@ jieba.load_userdict("user_dict.txt")
 
 def tfidf(comments, forum, type):
     tfidf_list = []
+<<<<<<< HEAD
 
     # tokenization seperated by sentences: sentence in comment in comments tok
     comments_tok = [[list(jieba.cut(sentence, HMM=False)) for sentence in comment.split('\n')] for comment in comments]
@@ -40,6 +48,23 @@ def tfidf(comments, forum, type):
 
     # #words in comments
     N = len([w for comment in comments_tok for sentence in comment for w in sentence])
+=======
+    ready_input = []
+    word_sentence_list = []
+
+    # In some cases, we will encounter blank line, so we need to check whether length of a sentence > 0
+    ready_input = [ sentence for comment in comments for sentence in comment.split('\n') if len(sentence) > 0 ]
+    
+    word_sentence_list = ws(ready_input)
+
+    # comments_tok = [[list(jieba.cut(sentence, HMM=False)) for sentence in comment.split('\n')] for comment in comments]
+    comments_tok = word_sentence_list
+    
+    comments_words = Counter([w for sentence in comments_tok for w in sentence if w not in stopwords])
+    comments_words = {key: item for key, item in sorted(comments_words.items(), key=lambda x: x[1], reverse=True)}
+
+    N = len([w for sentence in comments_tok for w in sentence])
+>>>>>>> 7f0948b526ed53294054ff0b673fe94e8fb35026
 
     for word, count in comments_words.items():
         if word not in all_words_dict.keys() or word not in D_dict.keys() or word in stopwords:   continue
@@ -53,6 +78,7 @@ def tfidf(comments, forum, type):
     tfidf_list.sort(key = lambda s: s[type], reverse=True)
 
     for word in tfidf_list:
+<<<<<<< HEAD
         related_words = {}
         possible_related = []
         px = comments_words[word[0]] / N
@@ -96,6 +122,25 @@ def tfidf(comments, forum, type):
     #     bi_count = Counter(bi_list).most_common(5)
     #     bi_count = [word[0] for word in bi_count]
     #     word.append(bi_count)
+=======
+        bi_list = []
+        for sentence in comments_tok:
+            if word[0] in sentence:
+                idx = sentence.index(word[0])
+                if idx+1 < len(sentence) and sentence[idx+1] not in stopwords:
+                    bi_list.append(sentence[idx] + sentence[idx+1])
+                if idx > 0 and sentence[idx-1] not in stopwords:
+                    bi_list.append(sentence[idx-1] + sentence[idx])
+                if idx-2 >= 0 and sentence[idx-2] not in stopwords and sentence[idx-1] not in stopwords:
+                    bi_list.append(sentence[idx-2] + sentence[idx-1] + sentence[idx])
+                if idx+2 < len(sentence) and sentence[idx+1] not in stopwords and sentence[idx+2] not in stopwords:
+                    bi_list.append(sentence[idx] + sentence[idx+1] + sentence[idx+2])
+                if idx > 0 and idx+1 < len(sentence) and sentence[idx-1] not in stopwords and sentence[idx+1] not in stopwords:
+                    bi_list.append(sentence[idx-1] + sentence[idx] + sentence[idx+1])
+        bi_count = Counter(bi_list).most_common(5)
+        bi_count = [word[0] for word in bi_count]
+        word.append(bi_count)
+>>>>>>> 7f0948b526ed53294054ff0b673fe94e8fb35026
     return tfidf_list
 
 requests.packages.urllib3.disable_warnings()
