@@ -38,17 +38,6 @@ jieba.load_userdict("user_dict.txt")
 
 def tfidf(comments, forum, type):
     tfidf_list = []
-<<<<<<< HEAD
-
-    # tokenization seperated by sentences: sentence in comment in comments tok
-    comments_tok = [[list(jieba.cut(sentence, HMM=False)) for sentence in comment.split('\n')] for comment in comments]
-    # counted words sorted by words count
-    comments_words = Counter([w for comment in comments_tok for sentence in comment for w in sentence])
-    comments_words = {key: item for key, item in sorted(comments_words.items(), key=lambda x: x[1], reverse=True)}
-
-    # #words in comments
-    N = len([w for comment in comments_tok for sentence in comment for w in sentence])
-=======
     ready_input = []
     word_sentence_list = []
 
@@ -64,7 +53,6 @@ def tfidf(comments, forum, type):
     comments_words = {key: item for key, item in sorted(comments_words.items(), key=lambda x: x[1], reverse=True)}
 
     N = len([w for sentence in comments_tok for w in sentence])
->>>>>>> 7f0948b526ed53294054ff0b673fe94e8fb35026
 
     for word, count in comments_words.items():
         if word not in all_words_dict.keys() or word not in D_dict.keys() or word in stopwords:   continue
@@ -78,52 +66,8 @@ def tfidf(comments, forum, type):
     tfidf_list.sort(key = lambda s: s[type], reverse=True)
 
     for word in tfidf_list:
-<<<<<<< HEAD
-        related_words = {}
-        possible_related = []
-        px = comments_words[word[0]] / N
-        for comment in comments_tok:
-            for sentence in comment:
-                if word[0] in sentence:
-                    for w in sentence:
-                        if w != word[0]: possible_related.extend([w])                            
-
-        for wordy in possible_related:
-            if wordy in stopwords or not comments_words.get(wordy): continue
-            py = comments_words[wordy] / N
-            pxy = 0
-            for comment in comments_tok:
-                for sentence in comment:
-                    if word[0] in sentence and wordy in sentence: pxy += 1
-            pxy /= len(comments_tok)
-            if pxy == 0: pmi = 0
-            else:        pmi = math.log(pxy / float(px * py), 2)
-            # print(word[0], wordy, pmi, pxy, px, py, pxy / float(px * py), sep='\t')
-            related_words[wordy] = pmi
-        related_words = [key for key, item in sorted(related_words.items(), key=lambda x: x[1], reverse=True)]
-        word.append(related_words[:5])
-
-    # for word in tfidf_list:
-    #     bi_list = []
-    #     for comment in comments_tok:
-    #         for sentence in comment:
-    #             if word[0] in sentence:
-    #                 idx = sentence.index(word[0])
-    #                 if idx+1 < len(sentence) and sentence[idx+1] not in stopwords:
-    #                     bi_list.append(sentence[idx] + sentence[idx+1])
-    #                 if idx > 0 and sentence[idx-1] not in stopwords:
-    #                     bi_list.append(sentence[idx-1] + sentence[idx])
-    #                 if idx-2 >= 0 and sentence[idx-2] not in stopwords and sentence[idx-1] not in stopwords:
-    #                     bi_list.append(sentence[idx-2] + sentence[idx-1] + sentence[idx])
-    #                 if idx+2 < len(sentence) and sentence[idx+1] not in stopwords and sentence[idx+2] not in stopwords:
-    #                     bi_list.append(sentence[idx] + sentence[idx+1] + sentence[idx+2])
-    #                 if idx > 0 and idx+1 < len(sentence) and sentence[idx-1] not in stopwords and sentence[idx+1] not in stopwords:
-    #                     bi_list.append(sentence[idx-1] + sentence[idx] + sentence[idx+1])
-    #     bi_count = Counter(bi_list).most_common(5)
-    #     bi_count = [word[0] for word in bi_count]
-    #     word.append(bi_count)
-=======
         bi_list = []
+        # for comment in comments_tok:
         for sentence in comments_tok:
             if word[0] in sentence:
                 idx = sentence.index(word[0])
@@ -140,7 +84,6 @@ def tfidf(comments, forum, type):
         bi_count = Counter(bi_list).most_common(5)
         bi_count = [word[0] for word in bi_count]
         word.append(bi_count)
->>>>>>> 7f0948b526ed53294054ff0b673fe94e8fb35026
     return tfidf_list
 
 requests.packages.urllib3.disable_warnings()
